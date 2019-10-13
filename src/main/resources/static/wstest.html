@@ -34,7 +34,7 @@
     var stomp = Stomp.client(url);
 
     //    连接WebSocket服务端
-    stomp.connect({},function (frame) {
+    stomp.connect('guest','guest',function (frame) {
 //        订阅/user/queue/notifications发送的消息，这里与在控制器的messagingTemplate.convertAndSendToUser中定义的订阅地址保持一致。
 //        这里多了一个/user，并且这个user是必须的，使用了/user才会发送消息到指定的用户
         stomp.subscribe("/user/queue/notifications",handleNotification);
