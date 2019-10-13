@@ -24,8 +24,15 @@
         sendSpittle(text);
     });
     //    连接endpoint为"/endpointChat"的节点
-    var sock = new SockJS("http://localhost:8080/endpointChat?token=123");
-    var stomp = Stomp.over(sock);
+
+    //sockJs方式连接
+    // var sock = new SockJS("http://localhost:8080/endpointChat?token=123");
+    // var stomp = Stomp.over(sock);
+
+    //websocket方式连接
+    var url = "ws://localhost:8080/endpointChat?token=123";
+    var stomp = Stomp.client(url);
+
     //    连接WebSocket服务端
     stomp.connect('guest','guest',function (frame) {
 //        订阅/user/queue/notifications发送的消息，这里与在控制器的messagingTemplate.convertAndSendToUser中定义的订阅地址保持一致。
