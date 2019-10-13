@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wstest</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.bootcss.com/sockjs-client/1.1.4/sockjs.min.js"></script>
+<!--    <script src="/js/plugins/toastr/toastr.min.js"></script>-->
+</head>
+<body>
+
+<form id="JanetForm">
+    <textarea rows="4" cols="60" name="text"></textarea>
+    <input type="submit"/>
+</form>
+
+<div id="output"></div>
+
+<script type="text/javascript">
+    $('#JanetForm').submit(function (e) {
+        e.preventDefault();
+        var text = $('#JanetForm').find('textarea[name="text"]').val();
+        sendSpittle(text);
+    });
+    //    连接endpoint为"/endpointChat"的节点
+    var sock = new SockJS("http://localhost:8080/endpointChat?token=456");
+    var stomp = Stomp.over(sock);
+    //    连接WebSocket服务端
+    stomp.connect('guest','guest',function (frame) {
+//        订阅/user/queue/notifications发送的消息，这里与在控制器的messagingTemplate.convertAndSendToUser中定义的订阅地址保持一致。
+//        这里多了一个/user，并且这个user是必须的，使用了/user才会发送消息到指定的用户
+        stomp.subscribe("/user/queue/notifications",handleNotification);
+    });
+    function handleNotification(message) {
+        $('#output').append("<b>收到了:" + message.body + "</b><br/>")
+    }
+    function sendSpittle(text) {
+//        表示向后端路径/chat发送消息请求，这个是在控制器中@MessageMapping中定义的。
+        stomp.send("/chat",{},text);
+    }
+    $('#stop').click(function () {
+        {sock.close()}
+    });
+    // var stompClient = null;
+    // $(function () {
+    //     connect();
+    // });
+    //
+    // function sendMessage() {
+    //     stompClient.send("/welcome", {}, JSON.stringify({'name': "123456"}));
+    // }
+    // function connect() {
+    //     var socket = new SockJS('/ws'); //链接SockJS 的endpoint 名称为"/endpointService",对应config中的站点名称
+    //     stompClient = Stomp.over(socket);//使用stomp子协议的WebSocket 客户端
+    //     stompClient.connect({}, function (frame) {//链接Web Socket的服务端。
+    //         console.log('Connected: ' + frame);
+    //         stompClient.subscribe('/user/queue/msg', function (response) {
+    //             var returnData = JSON.parse(response.body);
+    //             console.log(returnData)
+    //             toastr.options = {
+    //                 "closeButton": true,
+    //                 "debug": false,
+    //                 "progressBar": true,
+    //                 "positionClass": "toast-top-center",
+    //                 "onclick": null,
+    //                 "showDuration": "400",
+    //                 "hideDuration": "1000",
+    //                 "timeOut": "7000",
+    //                 "extendedTimeOut": "1000",
+    //                 "showEasing": "swing",
+    //                 "hideEasing": "linear",
+    //                 "showMethod": "fadeIn",
+    //                 "hideMethod": "fadeOut"
+    //             }
+    //             toastr.info(JSON.parse(response.body).responseMessage);
+    //         });
+    //         stompClient.subscribe('/topic/getResponse', function (response) { //订阅/topic/getResponse 目标发送的消息。这个是在控制器的@SendTo中定义的。
+    //             toastr.options = {
+    //                 "closeButton": true,
+    //                 "debug": false,
+    //                 "progressBar": true,
+    //                 "positionClass": "toast-top-center",
+    //                 "onclick": null,
+    //                 "showDuration": "400",
+    //                 "hideDuration": "1000",
+    //                 "timeOut": "7000",
+    //                 "extendedTimeOut": "1000",
+    //                 "showEasing": "swing",
+    //                 "hideEasing": "linear",
+    //                 "showMethod": "fadeIn",
+    //                 "hideMethod": "fadeOut"
+    //             }
+    //             toastr.info(JSON.parse(response.body).responseMessage);
+    //         });
+    //     });
+    // }
+</script>
+</body>
+</html>
